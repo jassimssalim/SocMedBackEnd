@@ -7,8 +7,12 @@ import SocMedApp.backend.model.User;
 import SocMedApp.backend.repo.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+
 
 import java.util.Optional;
+
+@CrossOrigin(origins = "http://localhost:3000") // Enable CORS for this specific endpoint
 
 @RestController
 public class UserController {
@@ -16,7 +20,6 @@ public class UserController {
     @Autowired
     private UserRepo userRepo;
 
-    @CrossOrigin(origins = "http://localhost:3000") // Enable CORS for this specific endpoint
 
     // Register user
     @PostMapping("/user")
@@ -24,6 +27,7 @@ public class UserController {
         // Store the password as plain text (This is not secure, remove encryption for now)
         return userRepo.save(newUser);
     }
+
 
     // Login user
     @PostMapping("/login")
