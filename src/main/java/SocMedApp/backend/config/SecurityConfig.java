@@ -16,12 +16,12 @@ public class SecurityConfig {
                         .anyRequest().permitAll()  // Allow all other paths
                 )
                 .formLogin(login -> login
-                        .loginPage("/Entry")  // Custom login page mapped to "/Entry"
+                        .loginPage("/entry")  // Custom login page mapped to "/Entry"
                         .defaultSuccessUrl("/home", true)  // Redirect to /home after successful login
                 )
                 .logout(logout -> logout
                         .logoutUrl("/logout")  // Logout endpoint
-                        .logoutSuccessUrl("/Entry")  // Redirect after logout
+                        .logoutSuccessUrl("/entry")  // Redirect after logout
                 )
                 .csrf(csrf -> csrf.disable())  // Disable CSRF for simplicity in development
                 .sessionManagement(session -> session
