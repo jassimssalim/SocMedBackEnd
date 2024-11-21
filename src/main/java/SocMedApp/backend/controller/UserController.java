@@ -6,10 +6,9 @@ import SocMedApp.backend.repo.UserRepo;
 import SocMedApp.backend.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -35,6 +34,19 @@ public class UserController {
     public ResponseEntity<Map<String, Object>> authLogin(@RequestBody User user) {
         return ResponseEntity.ok(userService.verify(user));
     }
+
+    //get profile by username
+    @GetMapping("/profiles/{username}")
+    public ResponseEntity<Map<String, Object>> getProfileByUsername(@PathVariable("username") String username) {
+        return ResponseEntity.ok(userService.getProfileByUserName(username));
+    }
+
+    //search profile by username or name
+    @GetMapping("/profiles/")
+    public ResponseEntity<List<Map<String, Object>>> getProfileByUsernameOrName(@RequestParam(name = "searchParam") String searchParam) {
+        return ResponseEntity.ok(userService.searchProfilesByUsernameOrName(searchParam));
+    }
+
 
     // Reset password
     @PostMapping("/reset-password")

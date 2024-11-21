@@ -9,9 +9,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class UserService {
@@ -49,6 +47,32 @@ public class UserService {
 
         Map<String, Object> response = new HashMap<>();
         response.put("accessToken", accessToken);
+        return response;
+    }
+
+    public Map<String, Object> getProfileByUserName(String username) {
+        User user = userRepo.findByUsername(username);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("username", user.getUsername());
+        response.put("name", user.getName());
+        response.put("email", user.getEmail());
+        return response;
+    }
+
+    public List<Map<String, Object>> searchProfilesByUsernameOrName(String searchParams) {
+        List<User> users = userRepo.findAllProfileByUserNameOrName(("%" + searchParams + "%"));
+
+        List<Map<String, Object>> response = new ArrayList<>();
+
+        for(User user: users){
+            Map<String, Object> toAdd = new HashMap<>();
+            toAdd.put("username", user.getUsername());
+            toAdd.put("name", user.getName());
+            toAdd.put("email", user.getEmail());
+            response.add(toAdd);
+        }
+
         return response;
     }
 }
