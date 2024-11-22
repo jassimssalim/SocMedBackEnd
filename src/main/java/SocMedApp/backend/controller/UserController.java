@@ -5,8 +5,10 @@ import SocMedApp.backend.model.User;
 import SocMedApp.backend.repo.UserRepo;
 import SocMedApp.backend.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
@@ -21,12 +23,21 @@ public class UserController {
     private UserService userService;
 
 
-//    @CrossOrigin(origins = "http://localhost:3000") // Enable CORS for this specific endpoint
+    @CrossOrigin(origins = "http://localhost:3000") // Enable CORS for this specific endpoint
 
     // Register user
-    @PostMapping("/register")
-    public ResponseEntity<Map<String, Object>> registerUser(@RequestBody User newUser) {
-        return ResponseEntity.ok(userService.register(newUser));
+    @PostMapping(value = "/register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Map<String, Object>> registerUser(@RequestParam("username") String username,
+                                                            @RequestParam("name") String name,
+                                                            @RequestParam("email") String email,
+                                                            @RequestParam("password") String password,
+                                                            @RequestParam("file") MultipartFile file) {
+        User newUser = new User();
+            newUser.setUsername(username);
+            newUser.setName(name);
+            newUser.setEmail(email);
+            newUser.setPassword(password);
+        return ResponseEntity.ok(userService.register(newUser, file));
     }
 
     // authentication/login user
@@ -51,41 +62,7 @@ public class UserController {
     // Reset password
     @PostMapping("/reset-password")
     public String resetPassword(@RequestBody ResetPasswordDTO resetPasswordDTO) {
-        // Retrieve the user by email
-        return "";
-//        User userOptional = userRepo.findByEmail(resetPasswordDTO.getEmail());
-//
-//        if (userOptional.isPresent()) {
-//            User user = userOptional.get();
-//
-//            // Validate the username
-//            if (!user.getUsername().equals(resetPasswordDTO.getUsername())) {
-//                return "Username does not match our records";
-//            }
-//
-//            // Check if the old password is correct
-//            if (!resetPasswordDTO.getOldPassword().equals(user.getPassword())) {
-//                return "Old password is incorrect";
-//            }
-//
-//            // Check if new password and confirm password match
-//            if (!resetPasswordDTO.getNewPassword().equals(resetPasswordDTO.getConfirmPassword())) {
-//                return "New password and confirmation do not match";
-//            }
-//
-//            // Check if the new password is the same as the old password
-//            if (resetPasswordDTO.getOldPassword().equals(resetPasswordDTO.getNewPassword())) {
-//                return "New password cannot be the same as the old password";
-//            }
-//
-//            // Update the password
-//            user.setPassword(resetPasswordDTO.getNewPassword());
-//            userRepo.save(user);  // Save the updated user
-//
-//            return "Password reset successfully";
-//        } else {
-//            return "User not found";
-//        }
+        return userService.resetPassword(resetPasswordDTO);
     }
 
     

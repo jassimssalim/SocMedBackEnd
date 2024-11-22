@@ -1,16 +1,8 @@
 package SocMedApp.backend.model;
 
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-import org.hibernate.HibernateException;
-import org.hibernate.engine.spi.SharedSessionContractImplementor;
-import org.hibernate.id.IdentifierGenerator;
+import jakarta.persistence.*;
 
-import java.io.Serializable;
-import java.util.Random;
+import java.time.LocalDate;
 
 @Entity
 public class User {
@@ -22,6 +14,11 @@ public class User {
     private String name;
     private String password;
     private String email;
+    private LocalDate registeredDate;
+
+    @OneToOne(cascade = CascadeType.ALL)  // One-to-one relationship with UserImage
+    @JoinColumn(name = "user_image_id")  // Foreign key to UserImage
+    private UserImage userImage;
 
     // Getters and setters
     public Long getId() {
@@ -63,4 +60,21 @@ public class User {
     public void setEmail(String email) {
         this.email = email;
     }
+
+    public UserImage getUserImage() {
+        return userImage;
+    }
+
+    public void setUserImage(UserImage userImage) {
+        this.userImage = userImage;
+    }
+
+    public LocalDate getRegisteredDate() {
+        return registeredDate;
+    }
+
+    public void setRegisteredDate(LocalDate registeredDate) {
+        this.registeredDate = registeredDate;
+    }
+
 }

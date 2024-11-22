@@ -6,11 +6,12 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface UserRepo extends JpaRepository<User,Long> {
 
-    User findByEmail(String email);  // This method will find the user by email
+    Optional<User> findByEmail(String email);  // This method will find the user by email
 
     User findByUsername(String username);
 
