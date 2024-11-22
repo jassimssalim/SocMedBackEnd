@@ -1,12 +1,8 @@
 package SocMedApp.backend.model;
 
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Entity;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.JoinColumn;
+import jakarta.persistence.*;
+
+import java.time.LocalDate;
 
 @Entity
 public class User {
@@ -18,6 +14,7 @@ public class User {
     private String name;
     private String password;
     private String email;
+    private LocalDate registeredDate;
 
     @OneToOne(cascade = CascadeType.ALL)  // One-to-one relationship with UserImage
     @JoinColumn(name = "user_image_id")  // Foreign key to UserImage
@@ -71,4 +68,13 @@ public class User {
     public void setUserImage(UserImage userImage) {
         this.userImage = userImage;
     }
+
+    public LocalDate getRegisteredDate() {
+        return registeredDate;
+    }
+
+    public void setRegisteredDate(LocalDate registeredDate) {
+        this.registeredDate = registeredDate;
+    }
+
 }

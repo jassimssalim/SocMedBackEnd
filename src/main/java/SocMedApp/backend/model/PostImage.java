@@ -3,7 +3,7 @@ package SocMedApp.backend.model;
 import jakarta.persistence.*;
 
 @Entity
-public class UserImage {
+public class PostImage {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
