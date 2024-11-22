@@ -28,7 +28,7 @@ public class SecurityConfig {
         return http
                 .csrf(customizer -> customizer.disable())
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers("register" ,"login","profiles/**","profiles","addProfilePicture/**")
+                        .requestMatchers("register" ,"login","profiles/**","profiles","addProfilePicture/**","posts/**", "posts", "likes/**")
                         .permitAll()
                         .anyRequest().authenticated())
                 .httpBasic(Customizer.withDefaults())
