@@ -14,6 +14,7 @@ public interface UserRepo extends JpaRepository<User,Long> {
     Optional<User> findByEmail(String email);  // This method will find the user by email
 
     User findByUsername(String username);
+    boolean existsByEmail(String email);
 
     @Query("select a from User a where a.name  LIKE :searchParam or a.username like :searchParam")
     List<User> findAllProfileByUserNameOrName(String searchParam);

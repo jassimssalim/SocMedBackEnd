@@ -2,6 +2,8 @@ package SocMedApp.backend.controller;
 
 import SocMedApp.backend.dto.ResetPasswordDTO;
 import SocMedApp.backend.model.User;
+import SocMedApp.backend.model.UserImage;
+import SocMedApp.backend.repo.UserImageRepo;
 import SocMedApp.backend.repo.UserRepo;
 import SocMedApp.backend.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.Map;
 
+@CrossOrigin(origins = "http://localhost:3000") // Enable CORS for this specific endpoint
 @RestController
 public class UserController {
 
@@ -64,6 +67,4 @@ public class UserController {
     public String resetPassword(@RequestBody ResetPasswordDTO resetPasswordDTO) {
         return userService.resetPassword(resetPasswordDTO);
     }
-
-    
 }

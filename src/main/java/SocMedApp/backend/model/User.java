@@ -20,6 +20,10 @@ public class User {
     @JoinColumn(name = "user_image_id")  // Foreign key to UserImage
     private UserImage userImage;
 
+    @OneToOne(cascade = CascadeType.ALL)  // One-to-one relationship with UserImage
+    @JoinColumn(name = "user_image_id")  // Foreign key to UserImage
+    private UserImage userImage;
+
     // Getters and setters
     public Long getId() {
         return id;
