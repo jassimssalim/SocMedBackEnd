@@ -28,18 +28,19 @@ public class SecurityConfig {
     private JwtFilter jwtFilter;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .csrf(customizer -> customizer.disable())
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers("register" ,"login")
-                        .permitAll()
-                        .anyRequest().authenticated())
-                .httpBasic(Customizer.withDefaults())
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+                        .requestMatchers("register", "login").permitAll() // Public access for "register" and "login"
+                        .requestMatchers("/profiles/**").authenticated() // Require authentication for /profiles/**
+                        .anyRequest().authenticated()) // All other requests also require authentication
+                .httpBasic(Customizer.withDefaults()) // Keep basic auth for testing (optional)
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Stateless sessions
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class) // Keep your JWT filter
                 .build();
     }
+
 
     @Bean
     public AuthenticationProvider authenticationProvider(){
