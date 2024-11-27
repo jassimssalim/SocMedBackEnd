@@ -82,6 +82,7 @@ public class UserService {
         return response;
     }
 
+    //getuserby profile username
     public Map<String, Object> getProfileByUserName(String username) {
         Map<String, Object> response = new HashMap<>();
         User user = userRepo.findByUsername(username);
@@ -102,10 +103,46 @@ public class UserService {
         response.put("name", user.getName());
         response.put("email", user.getEmail());
         response.put("registeredDate", user.getRegisteredDate());
-        response.put("image", imageDetails); // Include the image details in the response
+        response.put("image", imageDetails);
+        response.put("graduateSchool", user.getGraduateSchool());
+        response.put("age", user.getAge());
+        response.put("sex", user.getSex());
+        response.put("links", user.getLinks());
+        response.put("address", user.getAddress());
+        response.put("bio", user.getBio());
 
         return response;
     }
+
+    //update profile
+    public Map<String, Object> updateProfile(User updatedUser, String username) {
+        Map<String, Object> response = new HashMap<>();
+
+        // Find the user by username
+        User existingUser = userRepo.findByUsername(username);
+
+        if (existingUser == null) {
+            response.put("error", "No user found");
+            return response;
+        }
+
+        // Update the user's fields
+        existingUser.setName(updatedUser.getName());
+        existingUser.setEmail(updatedUser.getEmail());
+        existingUser.setGraduateSchool(updatedUser.getGraduateSchool());
+        existingUser.setAge(updatedUser.getAge());
+        existingUser.setSex(updatedUser.getSex());
+        existingUser.setLinks(updatedUser.getLinks());
+        existingUser.setAddress(updatedUser.getAddress());
+        existingUser.setBio(updatedUser.getBio());
+
+        // Save the updated user
+        userRepo.save(existingUser);
+
+        response.put("message", "Profile updated successfully");
+        return response;
+    }
+
 
     public List<Map<String, Object>> searchProfilesByUsernameOrName(String searchParams) {
         List<User> users = userRepo.findAllProfileByUserNameOrName(("%" + searchParams + "%"));

@@ -50,11 +50,18 @@ public class UserController {
     }
 
     //get profile by username
-
     @GetMapping("/profiles/{username}")
     public ResponseEntity<Map<String, Object>> getProfileByUsername(@PathVariable("username") String username) {
         return ResponseEntity.ok(userService.getProfileByUserName(username));
     }
+
+    //update user by username
+    @PutMapping("/update/{username}")
+    public ResponseEntity<Map<String, Object>> updateProfile(@PathVariable String username, @RequestBody User updatedUser) {
+        Map<String, Object> response = userService.updateProfile(updatedUser, username);
+        return ResponseEntity.ok(response);
+    }
+
 
     //search profile by username or name
     @GetMapping("/profiles/")

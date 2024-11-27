@@ -32,8 +32,8 @@ public class SecurityConfig {
         return http
                 .csrf(customizer -> customizer.disable())
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers("register", "login").permitAll() // Public access for "register" and "login"
-                        .requestMatchers("/profiles/**").authenticated() // Require authentication for /profiles/**
+                        .requestMatchers("register", "login", "/profiles/**", "/update/**").permitAll()
+                      //  .requestMatchers("/update/**").authenticated() // Require authentication for /profiles/**
                         .anyRequest().authenticated()) // All other requests also require authentication
                 .httpBasic(Customizer.withDefaults()) // Keep basic auth for testing (optional)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Stateless sessions
