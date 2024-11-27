@@ -29,8 +29,7 @@ public class UserService {
 
     private BCryptPasswordEncoder bcrypt = new BCryptPasswordEncoder(12);
 
-    public Map<String, Object>  register(User user, MultipartFile file){
-
+    public Map<String, Object> register(User user, MultipartFile file) {
         Map<String, Object> response = new HashMap<>();
 
         try {
@@ -66,16 +65,15 @@ public class UserService {
             response.put("error", e.getMessage());
             return response;
         }
-
     }
 
-    public Map<String, Object> verify(User user){
-        String accessToken ="";
+    public Map<String, Object> verify(User user) {
+        String accessToken = "";
 
         Authentication authentication =
                 authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
 
-        if (authentication.isAuthenticated()){
+        if (authentication.isAuthenticated()) {
             accessToken = jwtService.generateToken(user.getUsername());
         }
 
@@ -85,28 +83,26 @@ public class UserService {
     }
 
     public Map<String, Object> getProfileByUserName(String username) {
-
         Map<String, Object> response = new HashMap<>();
         User user = userRepo.findByUsername(username);
 
-        if (user == null){
+        if (user == null) {
             response.put("error", "No user found");
             return response;
         }
 
+        // Get the UserImage and include its details in the response
         UserImage userImage = user.getUserImage();
-
         Map<String, Object> imageDetails = new HashMap<>();
-        imageDetails.put("fileName", ((userImage == null) ? "": userImage.getFileName()));
-        imageDetails.put("fileData", ((userImage == null) ? "": userImage.getFileData()));
-
+        imageDetails.put("fileName", (userImage == null) ? "" : userImage.getFileName());
+        imageDetails.put("fileData", (userImage == null) ? "" : Base64.getEncoder().encodeToString(userImage.getFileData()));
 
         response.put("id", user.getId());
         response.put("username", user.getUsername());
         response.put("name", user.getName());
         response.put("email", user.getEmail());
         response.put("registeredDate", user.getRegisteredDate());
-        response.put("image", imageDetails);
+        response.put("image", imageDetails); // Include the image details in the response
 
         return response;
     }
@@ -116,7 +112,7 @@ public class UserService {
 
         List<Map<String, Object>> response = new ArrayList<>();
 
-        for(User user: users){
+        for (User user : users) {
             Map<String, Object> toAdd = new HashMap<>();
             toAdd.put("username", user.getUsername());
             toAdd.put("name", user.getName());
@@ -155,12 +151,11 @@ public class UserService {
 
             // Update the password
             user.setPassword(resetPasswordDTO.getNewPassword());
-            userRepo.save(user);  // Save the updated user
+            userRepo.save(user); // Save the updated user
 
             return "Password reset successfully";
         } else {
             return "User not found";
         }
     }
-
 }

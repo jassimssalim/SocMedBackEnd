@@ -50,6 +50,7 @@ public class UserController {
     }
 
     //get profile by username
+
     @GetMapping("/profiles/{username}")
     public ResponseEntity<Map<String, Object>> getProfileByUsername(@PathVariable("username") String username) {
         return ResponseEntity.ok(userService.getProfileByUserName(username));
@@ -67,4 +68,8 @@ public class UserController {
     public String resetPassword(@RequestBody ResetPasswordDTO resetPasswordDTO) {
         return userService.resetPassword(resetPasswordDTO);
     }
+
+
 }
+
+
