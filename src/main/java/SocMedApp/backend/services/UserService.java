@@ -115,6 +115,7 @@ public class UserService {
     }
 
     //update profile
+
     public Map<String, Object> updateProfile(User updatedUser, String username) {
         Map<String, Object> response = new HashMap<>();
 
@@ -122,11 +123,11 @@ public class UserService {
         User existingUser = userRepo.findByUsername(username);
 
         if (existingUser == null) {
-            response.put("error", "No user found");
+            response.put("error", "User not found");
             return response;
         }
 
-        // Update the user's fields
+        // Update fields regardless of null or not
         existingUser.setName(updatedUser.getName());
         existingUser.setEmail(updatedUser.getEmail());
         existingUser.setGraduateSchool(updatedUser.getGraduateSchool());
@@ -136,12 +137,18 @@ public class UserService {
         existingUser.setAddress(updatedUser.getAddress());
         existingUser.setBio(updatedUser.getBio());
 
-        // Save the updated user
-        userRepo.save(existingUser);
+        try {
+            // Save the updated user
+            userRepo.save(existingUser);
+            response.put("message", "Profile updated successfully");
+            response.put("user", existingUser); // Optional: include updated user details
+        } catch (Exception e) {
+            response.put("error", "Failed to update profile: " + e.getMessage());
+        }
 
-        response.put("message", "Profile updated successfully");
         return response;
     }
+    //end
 
 
     public List<Map<String, Object>> searchProfilesByUsernameOrName(String searchParams) {

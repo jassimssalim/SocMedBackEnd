@@ -15,6 +15,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.http.HttpStatus;
+
 @CrossOrigin(origins = "http://localhost:3000") // Enable CORS for this specific endpoint
 @RestController
 public class UserController {
@@ -57,8 +59,16 @@ public class UserController {
 
     //update user by username
     @PutMapping("/update/{username}")
-    public ResponseEntity<Map<String, Object>> updateProfile(@PathVariable String username, @RequestBody User updatedUser) {
+    public ResponseEntity<Map<String, Object>> updateProfile(
+            @PathVariable String username,
+            @RequestBody User updatedUser
+    ) {
         Map<String, Object> response = userService.updateProfile(updatedUser, username);
+
+        // Return appropriate response based on the operation's outcome
+        if (response.containsKey("error")) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
         return ResponseEntity.ok(response);
     }
 
