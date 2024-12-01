@@ -69,16 +69,19 @@ public class UserService {
 
     public Map<String, Object> verify(User user) {
         String accessToken = "";
+        User thisUser = new User();
 
         Authentication authentication =
                 authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
 
         if (authentication.isAuthenticated()) {
             accessToken = jwtService.generateToken(user.getUsername());
+            thisUser = userRepo.findByUsername(user.getUsername());
         }
 
         Map<String, Object> response = new HashMap<>();
         response.put("accessToken", accessToken);
+        response.put("userId", thisUser.getId());
         return response;
     }
 
@@ -201,5 +204,28 @@ public class UserService {
         } else {
             return "User not found";
         }
+    }
+
+    public Map<String, Object> getUserDetailsByUserId(Long id) {
+        Map<String, Object> response = new HashMap<>();
+        Optional<User> userOptional = userRepo.findById(id);
+        User user = new User();
+
+        if (!userOptional.isPresent()) {
+            response.put("error", "No user found");
+            return response;
+        } else user = userOptional.get();
+
+        // Get the UserImage and include its details in the response
+        UserImage userImage = user.getUserImage();
+        Map<String, Object> imageDetails = new HashMap<>();
+        imageDetails.put("fileName", (userImage == null) ? "" : userImage.getFileName());
+        imageDetails.put("fileData", (userImage == null) ? "" : Base64.getEncoder().encodeToString(userImage.getFileData()));
+
+        response.put("id", user.getId());
+        response.put("username", user.getUsername());
+        response.put("name", user.getName());
+        response.put("image", imageDetails);
+        return response;
     }
 }

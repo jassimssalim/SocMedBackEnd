@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
+//@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 public class PostController {
 
@@ -30,17 +31,17 @@ public class PostController {
     }
 
     @GetMapping( "/posts")
-    public ResponseEntity<List<Posts>> getAllPosts() {
+    public ResponseEntity<List<Object>> getAllPosts() {
         return ResponseEntity.ok(postService.getAllPosts());
     }
 
     @GetMapping( "/profiles/{username}/posts")
-    public ResponseEntity<List<Posts>> getAllPostByUsername(@PathVariable("username") String username) {
+    public ResponseEntity<List<Object>> getAllPostByUsername(@PathVariable("username") String username) {
         return ResponseEntity.ok(postService.getAllPostByUsername(username));
     }
 
     @GetMapping( "/posts/{id}")
-    public ResponseEntity<Posts> getPostById(@PathVariable("id") Long id) {
+    public ResponseEntity<Object> getPostById(@PathVariable("id") Long id) {
         return ResponseEntity.ok(postService.getPostById(id));
     }
 

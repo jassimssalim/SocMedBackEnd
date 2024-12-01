@@ -1,9 +1,6 @@
 package SocMedApp.backend.services;
 
-import SocMedApp.backend.model.Comments;
-import SocMedApp.backend.model.PostImage;
-import SocMedApp.backend.model.Posts;
-import SocMedApp.backend.model.User;
+import SocMedApp.backend.model.*;
 import SocMedApp.backend.repo.CommentsRepo;
 import SocMedApp.backend.repo.PostRepo;
 import SocMedApp.backend.repo.UserRepo;
@@ -12,8 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
-import java.util.Optional;
+import java.time.LocalDate;
+import java.util.*;
 
 @Service
 public class PostService {
@@ -32,17 +29,18 @@ public class PostService {
 
         try {
 
-            if (file != null){
-            String fileName = file.getOriginalFilename();
-            byte[] fileBytes = file.getBytes();
+            if (file != null) {
+                String fileName = file.getOriginalFilename();
+                byte[] fileBytes = file.getBytes();
 
-            PostImage postImage = new PostImage();
-            postImage.setFileName(fileName);
-            postImage.setFileData(fileBytes);
+                PostImage postImage = new PostImage();
+                postImage.setFileName(fileName);
+                postImage.setFileData(fileBytes);
 
-            post.setPostImage(postImage);
+                post.setPostImage(postImage);
 
             }
+            post.setPostedDate(LocalDate.now());
 
             postRepo.save(post);
 
@@ -52,25 +50,81 @@ public class PostService {
         }
     }
 
-    public List<Posts> getAllPosts() {
-        return postRepo.findAllPosts();
+    public List<Object> getAllPosts() {
+        List<Posts> postsList = postRepo.findAllPosts();
+        List<Object> updatedList = new ArrayList<>();
+
+
+        for(Posts post : postsList){
+
+            Map<String, Object> toAdd = new HashMap<>();
+
+            PostImage postImage = post.getPostImage();
+            Map<String, Object> imageDetails = new HashMap<>();
+
+            imageDetails.put("fileName", (postImage == null) ? "" : postImage.getFileName());
+            imageDetails.put("fileData", (postImage == null) ? "" : Base64.getEncoder().encodeToString(postImage.getFileData()));
+
+            toAdd.put("id", post.getId());
+            toAdd.put("userId", post.getUserId());
+            toAdd.put("postImage", imageDetails);
+            toAdd.put("datePosted", post.getPostedDate());
+            toAdd.put("content", post.getContent());
+            updatedList.add(toAdd);
+        }
+
+        return updatedList;
     }
 
 
-    public List<Posts> getAllPostByUsername(String username) {
+    public List<Object> getAllPostByUsername(String username) {
 
         User user = userRepo.findByUsername(username);
-        return postRepo.findAllPostsByUserId(user.getId());
+
+        List<Posts> postsList = postRepo.findAllPostsByUserId(user.getId());
+        List<Object> updatedList = new ArrayList<>();
+
+        for(Posts post : postsList){
+
+            Map<String, Object> toAdd = new HashMap<>();
+
+            PostImage postImage = post.getPostImage();
+            Map<String, Object> imageDetails = new HashMap<>();
+
+            imageDetails.put("fileName", (postImage == null) ? "" : postImage.getFileName());
+            imageDetails.put("fileData", (postImage == null) ? "" : Base64.getEncoder().encodeToString(postImage.getFileData()));
+
+            toAdd.put("id", post.getId());
+            toAdd.put("userId", post.getUserId());
+            toAdd.put("postImage", imageDetails);
+            toAdd.put("datePosted", post.getPostedDate());
+            toAdd.put("content", post.getContent());
+            updatedList.add(toAdd);
+        }
+
+        return updatedList;
     }
 
-    public Posts getPostById(Long id) {
+    public Object getPostById(Long id) {
         Optional <Posts> optionalPost = postRepo.findPostById(id);
-        Posts post = new Posts();
+        Map<String, Object> response = new HashMap<>();
 
         if (optionalPost.isPresent()){
-            post = optionalPost.get();
-        }
-        return post;
+            Posts post = optionalPost.get();
+
+                PostImage postImage = post.getPostImage();
+                Map<String, Object> imageDetails = new HashMap<>();
+                imageDetails.put("fileName", (postImage == null) ? "" : postImage.getFileName());
+                imageDetails.put("fileData", (postImage == null) ? "" : Base64.getEncoder().encodeToString(postImage.getFileData()));
+
+                response.put("id", post.getId());
+                response.put("userId", post.getUserId());
+                response.put("postImage", imageDetails);
+                response.put("datePosted", post.getPostedDate());
+                response.put("content", post.getContent());
+            }
+
+        return response;
     }
 
     public ResponseEntity<String> deletePostById(Long id) {
