@@ -35,9 +35,11 @@ public class UserService {
         try {
             // Validate file is not empty
             if (file.isEmpty()) {
-                response.put("error", "file not existing");
+                response.put("error", "File not provided");
                 return response;
             }
+
+
 
             // Extract file information
             String fileName = file.getOriginalFilename();
@@ -129,6 +131,7 @@ public class UserService {
 
         // Update fields regardless of null or not
         existingUser.setName(updatedUser.getName());
+        existingUser.setUsername(updatedUser.getUsername());
         existingUser.setEmail(updatedUser.getEmail());
         existingUser.setGraduateSchool(updatedUser.getGraduateSchool());
         existingUser.setAge(updatedUser.getAge());

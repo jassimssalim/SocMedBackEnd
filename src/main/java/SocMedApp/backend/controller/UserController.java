@@ -13,7 +13,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
+
 
 import org.springframework.http.HttpStatus;
 
@@ -30,20 +32,54 @@ public class UserController {
 
     @CrossOrigin(origins = "http://localhost:3000") // Enable CORS for this specific endpoint
 
-    // Register user
+
+   //register
     @PostMapping(value = "/register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Map<String, Object>> registerUser(@RequestParam("username") String username,
                                                             @RequestParam("name") String name,
                                                             @RequestParam("email") String email,
                                                             @RequestParam("password") String password,
                                                             @RequestParam("file") MultipartFile file) {
+
+        Map<String, Object> response = new HashMap<>();
+        // Validate if both the email and username already exist
+        if (userRepo.existsByEmailAndUsername(email, username)) {
+            // If both email and username exist
+            response.put("bothError", "Username and Email already taken");
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(response);  // Return 409 Conflict with the bothError
+        }
+
+        // Validate if the email already exists
+        if (userRepo.existsByEmail(email)) {
+            response.put("emailError", "Email already taken");
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(response);  // Return 409 Conflict with the email error
+        }
+
+        // Validate if the username already exists
+        if (userRepo.existsByUsername(username)) {
+            response.put("usernameError", "Username already taken");
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(response);  // Return 409 Conflict with the username error
+        }
+
+        // If no duplicates, create the user
         User newUser = new User();
-            newUser.setUsername(username);
-            newUser.setName(name);
-            newUser.setEmail(email);
-            newUser.setPassword(password);
-        return ResponseEntity.ok(userService.register(newUser, file));
+        newUser.setUsername(username);
+        newUser.setName(name);
+        newUser.setEmail(email);
+        newUser.setPassword(password);
+
+        // Call the userService to handle registration logic, such as saving to DB
+        Map<String, Object> registrationResponse = userService.register(newUser, file);
+
+        // Check if the response contains an error field
+        if (registrationResponse.containsKey("error")) {
+            return ResponseEntity.badRequest().body(registrationResponse);  // Return 400 if an error occurs
+        }
+
+        // Return success response
+        return ResponseEntity.ok(registrationResponse);  // Return 200 for successful registration
     }
+    //register end
 
     // authentication/login user
     @PostMapping("/login")
@@ -64,6 +100,7 @@ public class UserController {
             @RequestBody User updatedUser
     ) {
         Map<String, Object> response = userService.updateProfile(updatedUser, username);
+
 
         // Return appropriate response based on the operation's outcome
         if (response.containsKey("error")) {
