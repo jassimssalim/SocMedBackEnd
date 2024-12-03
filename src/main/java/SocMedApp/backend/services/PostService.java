@@ -9,7 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -25,7 +25,7 @@ public class PostService {
     private CommentsRepo commentsRepo;
 
 
-    public ResponseEntity<String> addPost(Posts post, MultipartFile file) {
+    public ResponseEntity<Object> addPost(Posts post, MultipartFile file) {
 
         try {
 
@@ -40,11 +40,11 @@ public class PostService {
                 post.setPostImage(postImage);
 
             }
-            post.setPostedDate(LocalDate.now());
+            post.setPostedDate(LocalDateTime.now());
 
             postRepo.save(post);
 
-            return ResponseEntity.ok("Post successfully saved");
+            return ResponseEntity.ok(getPostById(post.getId()));
         }catch (Exception e){
             return ResponseEntity.status(500).body(e.getMessage());
         }
@@ -143,15 +143,64 @@ public class PostService {
 
     }
 
-    public List<Comments> getCommentsByPostId(Long postId) {
-        return commentsRepo.findCommentsByPostId(postId);
+    public List<Map<String, Object>> getCommentsByPostId(Long postId) {
+
+        List <Comments>  allComments = commentsRepo.findCommentsByPostId(postId);
+        List<Map<String, Object>> response = new ArrayList<>();
+
+        for(Comments comment : allComments){
+
+            Map<String, Object> toAdd = new HashMap<>();
+
+            Optional <User> optionalUser = userRepo.findById(comment.getUserId());
+            User commentUser = (optionalUser.isPresent())? optionalUser.get() : new User();
+
+            UserImage userImage = commentUser.getUserImage();
+
+            Map<String, Object> imageDetails = new HashMap<>();
+
+            imageDetails.put("fileName", (userImage == null) ? "" : userImage.getFileName());
+            imageDetails.put("fileData", (userImage == null) ? "" : ((userImage.getFileData() == null)? "" : Base64.getEncoder().encodeToString(userImage.getFileData())));
+
+            toAdd.put("id", comment.getId());
+            toAdd.put("userId", comment.getUserId());
+            toAdd.put("name", commentUser.getName());
+            toAdd.put("photo", imageDetails);
+            toAdd.put("content", comment.getContent());
+            toAdd.put("datePosted", comment.getDatePosted());
+            toAdd.put("postId", comment.getPostId());
+            response.add(toAdd);
+        }
+
+        return response;
     }
 
-    public ResponseEntity<String> addCommentToPost(Comments newComment) {
+    public ResponseEntity<Object> addCommentToPost(Comments newComment) {
 
         try {
             commentsRepo.save(newComment);
-            return ResponseEntity.ok("Successfully added comments");
+
+            Map<String, Object> response = new HashMap<>();
+
+            Optional <User> optionalUser = userRepo.findById(newComment.getUserId());
+            User commentUser = (optionalUser.isPresent())? optionalUser.get() : new User();
+
+            UserImage userImage = commentUser.getUserImage();
+
+            Map<String, Object> imageDetails = new HashMap<>();
+
+            imageDetails.put("fileName", (userImage == null) ? "" : userImage.getFileName());
+            imageDetails.put("fileData", (userImage == null) ? "" : ((userImage.getFileData() == null)? "" : Base64.getEncoder().encodeToString(userImage.getFileData())));
+
+            response.put("id", newComment.getId());
+            response.put("userId", newComment.getUserId());
+            response.put("name", commentUser.getName());
+            response.put("photo", imageDetails);
+            response.put("content", newComment.getContent());
+            response.put("datePosted", newComment.getDatePosted());
+            response.put("postId", newComment.getPostId());
+
+            return ResponseEntity.ok(response);
         }catch (Exception e){
             return ResponseEntity.status(500).body("Error in saving comment");
         }
@@ -219,6 +268,22 @@ public class PostService {
 
         }catch (Exception e){
             return ResponseEntity.status(500).body(e.getMessage());
+        }
+    }
+
+    public ResponseEntity<String> editComment(Long commentId, String content) {
+        try {
+            Optional<Comments> comment = commentsRepo.findCommentById(commentId);
+
+            if (comment.isPresent()){
+                Comments commentToBeUpdated = comment.get();
+                commentToBeUpdated.setContent(content);
+                commentsRepo.save(commentToBeUpdated);
+
+                return ResponseEntity.ok("Comment succesfully updated");
+            } else return ResponseEntity.status(500).body("Comment cannot be found");
+        } catch (Exception e){
+            return ResponseEntity.status(500).body("Error in updating comments");
         }
     }
 }

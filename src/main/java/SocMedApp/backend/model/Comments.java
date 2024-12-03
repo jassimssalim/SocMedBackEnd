@@ -5,6 +5,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
+import java.time.LocalDateTime;
+
 @Entity
 public class Comments {
 
@@ -14,6 +16,16 @@ public class Comments {
     private Long userId;
     private Long postId;
     private String content;
+
+    public LocalDateTime getDatePosted() {
+        return datePosted;
+    }
+
+    public void setDatePosted(LocalDateTime datePosted) {
+        this.datePosted = datePosted;
+    }
+
+    private LocalDateTime datePosted;
 
     public Long getId() {
         return id;

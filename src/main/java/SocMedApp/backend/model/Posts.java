@@ -2,7 +2,7 @@ package SocMedApp.backend.model;
 
 import jakarta.persistence.*;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 public class Posts {
@@ -12,7 +12,7 @@ public class Posts {
     private Long id;
     private Long userId;
     private String content;
-    private LocalDate postedDate;
+    private LocalDateTime postedDate;
 
     @OneToOne(cascade = CascadeType.ALL)  // One-to-one relationship with UserImage
     @JoinColumn(name = "post_image_id")  // Foreign key to UserImage
@@ -22,11 +22,11 @@ public class Posts {
         return id;
     }
 
-    public LocalDate getPostedDate() {
+    public LocalDateTime getPostedDate() {
         return postedDate;
     }
 
-    public void setPostedDate(LocalDate postedDate) {
+    public void setPostedDate(LocalDateTime postedDate) {
         this.postedDate = postedDate;
     }
 
