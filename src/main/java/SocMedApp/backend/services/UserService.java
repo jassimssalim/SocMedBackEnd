@@ -112,6 +112,8 @@ public class UserService {
         response.put("links", user.getLinks());
         response.put("address", user.getAddress());
         response.put("bio", user.getBio());
+        response.put("phone", user.getPhone());
+
 
         return response;
     }
@@ -139,6 +141,8 @@ public class UserService {
         existingUser.setLinks(updatedUser.getLinks());
         existingUser.setAddress(updatedUser.getAddress());
         existingUser.setBio(updatedUser.getBio());
+        existingUser.setPhone(updatedUser.getPhone());
+
 
         try {
             // Save the updated user

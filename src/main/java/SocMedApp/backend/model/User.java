@@ -18,6 +18,7 @@ public class User {
     private LocalDate registeredDate;
 
     // New fields
+    private String phone;  // Added phone field
     private String bio;
     private String graduateSchool;
     private Integer age;
@@ -124,6 +125,14 @@ public class User {
 
     public void setAddress(String address) {
         this.address = address;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {  // Corrected the parameter to "phone"
+        this.phone = phone;
     }
 
     public UserImage getUserImage() {
