@@ -124,6 +124,23 @@ public class UserController {
     }
 
 
+    // Delete user by username
+    @DeleteMapping("/delete/{username}")
+    public ResponseEntity<Map<String, Object>> deleteUser(@PathVariable("username") String username) {
+        String result = userService.deleteUserByUsername(username);
+        Map<String, Object> response = new HashMap<>();
+
+        if (result.equals("User not found")) {
+            response.put("error", result);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);  // Return 404 if user not found
+        }
+
+        response.put("message", result);  // Success message
+        return ResponseEntity.ok(response);  // Return 200 for successful deletion
+    }
+
+
+
 }
 
 

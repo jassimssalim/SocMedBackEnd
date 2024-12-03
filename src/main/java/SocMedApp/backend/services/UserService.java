@@ -205,4 +205,18 @@ public class UserService {
             return "User not found";
         }
     }
+
+
+    //delete user
+
+    public String deleteUserByUsername(String username) {
+        User user = userRepo.findByUsername(username);
+
+        if (user == null) {
+            return "User not found";
+        }
+
+        userRepo.delete(user);  // This is the delete method inherited from JpaRepository
+        return "User deleted successfully";
+    }
 }
