@@ -181,8 +181,11 @@ public class UserService {
                 return "Username does not match our records";
             }
 
-            // Check if the old password is correct
-            if (!resetPasswordDTO.getOldPassword().equals(user.getPassword())) {
+            // Create a BCryptPasswordEncoder instance with the same strength (12)
+            BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder(12);
+
+            // Check if the old password is correct using bcrypt
+            if (!passwordEncoder.matches(resetPasswordDTO.getOldPassword(), user.getPassword())) {
                 return "Old password is incorrect";
             }
 
@@ -192,13 +195,16 @@ public class UserService {
             }
 
             // Check if the new password is the same as the old password
-            if (resetPasswordDTO.getOldPassword().equals(resetPasswordDTO.getNewPassword())) {
+            if (passwordEncoder.matches(resetPasswordDTO.getNewPassword(), user.getPassword())) {
                 return "New password cannot be the same as the old password";
             }
 
-            // Update the password
-            user.setPassword(resetPasswordDTO.getNewPassword());
-            userRepo.save(user); // Save the updated user
+            // Encrypt the new password before saving
+            String encryptedPassword = passwordEncoder.encode(resetPasswordDTO.getNewPassword());
+            user.setPassword(encryptedPassword);
+
+            // Save the updated user
+            userRepo.save(user);
 
             return "Password reset successfully";
         } else {
