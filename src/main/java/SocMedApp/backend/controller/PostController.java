@@ -30,6 +30,16 @@ public class PostController {
         return postService.addPost(post, file);
     }
 
+    @PutMapping(value = "/posts/{postId}/edit", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Object> editPost(@PathVariable("postId") Long postId,
+                                           @RequestParam("userId") Long userId,
+                                           @RequestParam("content") String content,
+                                           @RequestParam(value = "isPhotoDeleted", required = false) boolean isPhotoDeleted,
+                                           @RequestParam(value = "photo", required = false) MultipartFile file){
+
+        return postService.editPost(postId,userId,content,file, isPhotoDeleted);
+    }
+
     @GetMapping( "/posts")
     public ResponseEntity<List<Object>> getAllPosts() {
         return ResponseEntity.ok(postService.getAllPosts());

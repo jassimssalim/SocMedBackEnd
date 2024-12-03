@@ -63,7 +63,7 @@ public class PostService {
             Map<String, Object> imageDetails = new HashMap<>();
 
             imageDetails.put("fileName", (postImage == null) ? "" : postImage.getFileName());
-            imageDetails.put("fileData", (postImage == null) ? "" : Base64.getEncoder().encodeToString(postImage.getFileData()));
+            imageDetails.put("fileData", (postImage == null) ? "" : ((postImage.getFileData() == null)? "" : Base64.getEncoder().encodeToString(postImage.getFileData())));
 
             toAdd.put("id", post.getId());
             toAdd.put("userId", post.getUserId());
@@ -92,7 +92,7 @@ public class PostService {
             Map<String, Object> imageDetails = new HashMap<>();
 
             imageDetails.put("fileName", (postImage == null) ? "" : postImage.getFileName());
-            imageDetails.put("fileData", (postImage == null) ? "" : Base64.getEncoder().encodeToString(postImage.getFileData()));
+            imageDetails.put("fileData", (postImage == null) ? "" : ((postImage.getFileData() == null)? "" : Base64.getEncoder().encodeToString(postImage.getFileData())));
 
             toAdd.put("id", post.getId());
             toAdd.put("userId", post.getUserId());
@@ -115,7 +115,7 @@ public class PostService {
                 PostImage postImage = post.getPostImage();
                 Map<String, Object> imageDetails = new HashMap<>();
                 imageDetails.put("fileName", (postImage == null) ? "" : postImage.getFileName());
-                imageDetails.put("fileData", (postImage == null) ? "" : Base64.getEncoder().encodeToString(postImage.getFileData()));
+                imageDetails.put("fileData", (postImage == null) ? "" : ((postImage.getFileData() == null)? "" : Base64.getEncoder().encodeToString(postImage.getFileData())));
 
                 response.put("id", post.getId());
                 response.put("userId", post.getUserId());
@@ -168,6 +168,57 @@ public class PostService {
             } else return ResponseEntity.status(500).body("Comment cannot be found");
         } catch (Exception e){
             return ResponseEntity.status(500).body("Error in deleting comments");
+        }
+    }
+
+    public ResponseEntity<Object> editPost(Long postId, Long userId, String content, MultipartFile file, boolean isPhotoDeleted) {
+
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+
+            Optional<Posts> optionalPost = postRepo.findPostById(postId);
+
+            if(optionalPost.isPresent()){
+
+                Posts post = optionalPost.get();
+                post.setContent(content);
+                post.setUserId(userId);
+                PostImage currentPostImage = post.getPostImage();
+
+
+                if(isPhotoDeleted){
+                    currentPostImage.setFileName(null);
+                    currentPostImage.setFileData(null);
+                    post.setPostImage(currentPostImage);
+                }
+
+                if (file != null) {
+                    String fileName = file.getOriginalFilename();
+                    byte[] fileBytes = file.getBytes();
+
+                    currentPostImage.setFileName(fileName);
+                    currentPostImage.setFileData(fileBytes);
+                    post.setPostImage(currentPostImage);
+
+                }
+
+                postRepo.save(post);
+
+                Map<String, Object> imageDetails = new HashMap<>();
+                imageDetails.put("fileName", (currentPostImage == null) ? "" : currentPostImage.getFileName());
+                imageDetails.put("fileData", (currentPostImage == null) ? "" : ((currentPostImage.getFileData() == null)? "" : Base64.getEncoder().encodeToString(currentPostImage.getFileData())));
+                response.put("id", post.getId());
+                response.put("userId", post.getUserId());
+                response.put("postImage", imageDetails);
+                response.put("datePosted", post.getPostedDate());
+                response.put("content", post.getContent());
+
+                return ResponseEntity.ok(response);
+            } else return ResponseEntity.status(500).body("Post not existing.");
+
+        }catch (Exception e){
+            return ResponseEntity.status(500).body(e.getMessage());
         }
     }
 }
