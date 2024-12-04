@@ -257,4 +257,32 @@ public class UserService {
         userRepo.delete(user);  // This is the delete method inherited from JpaRepository
         return "User deleted successfully";
     }
+
+
+    //get all users
+
+    public List<Map<String, Object>> getAllUsersExceptCurrent(String currentUsername) {
+        List<User> users = userRepo.findAll();
+        List<Map<String, Object>> response = new ArrayList<>();
+
+        for (User user : users) {
+            if (!user.getUsername().equals(currentUsername)) {
+                Map<String, Object> userMap = new HashMap<>();
+                userMap.put("name", user.getName());
+
+                // Get the UserImage and include its details in the response
+                UserImage userImage = user.getUserImage();
+                Map<String, String> imageDetails = new HashMap<>();
+                imageDetails.put("fileName", (userImage == null) ? "" : userImage.getFileName());
+                imageDetails.put("fileData", (userImage == null) ? "" : Base64.getEncoder().encodeToString(userImage.getFileData()));
+
+                userMap.put("image", imageDetails);
+                response.add(userMap);
+            }
+        }
+
+        return response;
+    }
+
+
 }

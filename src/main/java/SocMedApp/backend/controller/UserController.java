@@ -167,6 +167,12 @@ public class UserController {
     }
 
 
+    @GetMapping("/users/excludeCurrent")
+    public List<Map<String, Object>> getAllUsersExceptCurrent(@RequestParam String currentUsername) {
+        return userService.getAllUsersExceptCurrent(currentUsername);
+    }
+
+
 
 }
 
