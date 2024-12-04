@@ -99,8 +99,22 @@ public class UserController {
             @PathVariable String username,
             @RequestBody User updatedUser
     ) {
-        Map<String, Object> response = userService.updateProfile(updatedUser, username);
+        Map<String, Object> response = new HashMap<>();
 
+        String email = updatedUser.getEmail(); // Extract email from the updatedUser object
+
+        // Check if the email is already in use
+        if (userRepo.existsByEmail(email)) {
+            // Verify that the email doesn't belong to the user being updated
+            User currentUser = userRepo.findByUsername(username);
+            if (currentUser != null && !currentUser.getEmail().equals(email)) {
+                response.put("emailError", "Email already taken");
+                return ResponseEntity.status(HttpStatus.CONFLICT).body(response);  // Return 409 Conflict with the email error
+            }
+        }
+
+        // Delegate the profile update logic to the service
+        response = userService.updateProfile(updatedUser, username);
 
         // Return appropriate response based on the operation's outcome
         if (response.containsKey("error")) {
@@ -108,6 +122,7 @@ public class UserController {
         }
         return ResponseEntity.ok(response);
     }
+
 
 
     //search profile by username or name
