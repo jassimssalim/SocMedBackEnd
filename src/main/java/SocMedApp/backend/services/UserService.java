@@ -35,9 +35,11 @@ public class UserService {
         try {
             // Validate file is not empty
             if (file.isEmpty()) {
-                response.put("error", "file not existing");
+                response.put("error", "File not provided");
                 return response;
             }
+
+
 
             // Extract file information
             String fileName = file.getOriginalFilename();
@@ -132,6 +134,7 @@ public class UserService {
 
         // Update fields regardless of null or not
         existingUser.setName(updatedUser.getName());
+        existingUser.setUsername(updatedUser.getUsername());
         existingUser.setEmail(updatedUser.getEmail());
         existingUser.setGraduateSchool(updatedUser.getGraduateSchool());
         existingUser.setAge(updatedUser.getAge());
@@ -181,8 +184,11 @@ public class UserService {
                 return "Username does not match our records";
             }
 
-            // Check if the old password is correct
-            if (!resetPasswordDTO.getOldPassword().equals(user.getPassword())) {
+            // Create a BCryptPasswordEncoder instance with the same strength (12)
+            BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder(12);
+
+            // Check if the old password is correct using bcrypt
+            if (!passwordEncoder.matches(resetPasswordDTO.getOldPassword(), user.getPassword())) {
                 return "Old password is incorrect";
             }
 
@@ -192,13 +198,16 @@ public class UserService {
             }
 
             // Check if the new password is the same as the old password
-            if (resetPasswordDTO.getOldPassword().equals(resetPasswordDTO.getNewPassword())) {
+            if (passwordEncoder.matches(resetPasswordDTO.getNewPassword(), user.getPassword())) {
                 return "New password cannot be the same as the old password";
             }
 
-            // Update the password
-            user.setPassword(resetPasswordDTO.getNewPassword());
-            userRepo.save(user); // Save the updated user
+            // Encrypt the new password before saving
+            String encryptedPassword = passwordEncoder.encode(resetPasswordDTO.getNewPassword());
+            user.setPassword(encryptedPassword);
+
+            // Save the updated user
+            userRepo.save(user);
 
             return "Password reset successfully";
         } else {
@@ -227,5 +236,17 @@ public class UserService {
         response.put("name", user.getName());
         response.put("image", imageDetails);
         return response;
+
+    //delete user
+
+    public String deleteUserByUsername(String username) {
+        User user = userRepo.findByUsername(username);
+
+        if (user == null) {
+            return "User not found";
+        }
+
+        userRepo.delete(user);  // This is the delete method inherited from JpaRepository
+        return "User deleted successfully";
     }
 }
