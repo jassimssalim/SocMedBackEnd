@@ -1,6 +1,8 @@
 package SocMedApp.backend.controller;
 
 import SocMedApp.backend.dto.ResetPasswordDTO;
+import SocMedApp.backend.dto.ResetPasswordDTOv2;
+
 import SocMedApp.backend.model.User;
 import SocMedApp.backend.model.UserImage;
 import SocMedApp.backend.repo.UserImageRepo;
@@ -132,12 +134,22 @@ public class UserController {
     }
 
 
-    // Reset password
+    // Reset password V1
     @PostMapping("/reset-password")
     public String resetPassword(@RequestBody ResetPasswordDTO resetPasswordDTO) {
         return userService.resetPassword(resetPasswordDTO);
     }
 
+    //Update password v2
+    @PostMapping("/update-password")
+    public ResponseEntity<String> updatePassword(@RequestBody ResetPasswordDTOv2 resetPasswordDTOv2) {
+        String result = userService.updatePassword(resetPasswordDTOv2);
+        if (result.equals("Password updated successfully")) {
+            return ResponseEntity.ok(result); // Return 200 OK with success message
+        } else {
+            return ResponseEntity.badRequest().body(result); // Return 400 Bad Request with error message
+        }
+    }
 
     // Delete user by username
     @DeleteMapping("/delete/{username}")

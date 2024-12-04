@@ -1,6 +1,8 @@
 package SocMedApp.backend.services;
 
 import SocMedApp.backend.dto.ResetPasswordDTO;
+import SocMedApp.backend.dto.ResetPasswordDTOv2;
+
 import SocMedApp.backend.model.User;
 import SocMedApp.backend.model.UserImage;
 import SocMedApp.backend.repo.UserRepo;
@@ -173,7 +175,7 @@ public class UserService {
 
         return response;
     }
-
+//reset password v1 start
     public String resetPassword(ResetPasswordDTO resetPasswordDTO) {
         Optional<User> userOptional = userRepo.findByEmail(resetPasswordDTO.getEmail());
 
@@ -214,6 +216,32 @@ public class UserService {
         } else {
             return "User not found";
         }
+    }
+//reset password v1 end
+// reset password v2 start
+
+    public String updatePassword(ResetPasswordDTOv2 ResetPasswordDTOv2) {
+        User user = userRepo.findByUsername(ResetPasswordDTOv2.getUsername());
+        if (user == null) {
+            return "User not found";
+        }
+        // Check if new password and confirm password match
+        if (!ResetPasswordDTOv2.getNewPassword().equals(ResetPasswordDTOv2.getConfirmPassword())) {
+            return "New password and confirmation do not match";
+        }
+        // Create a BCryptPasswordEncoder instance with the same strength (12)
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder(12);
+        // Check if the new password is the same as the current password
+        if (passwordEncoder.matches(ResetPasswordDTOv2.getNewPassword(), user.getPassword())) {
+            return "New password cannot be the same as the current password";
+        }
+        // Encrypt the new password before saving
+        String encryptedPassword = passwordEncoder.encode(ResetPasswordDTOv2.getNewPassword());
+        user.setPassword(encryptedPassword);
+        // Save the updated user
+        userRepo.save(user);
+
+        return "Password updated successfully";
     }
 
 
