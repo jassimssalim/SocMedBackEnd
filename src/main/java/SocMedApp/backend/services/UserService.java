@@ -236,6 +236,7 @@ public class UserService {
         response.put("name", user.getName());
         response.put("image", imageDetails);
         return response;
+    }
 
     //delete user
 
