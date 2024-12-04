@@ -236,7 +236,7 @@ public class PostService {
                 PostImage currentPostImage = post.getPostImage();
 
 
-                if(isPhotoDeleted){
+                if(isPhotoDeleted && currentPostImage != null){
                     currentPostImage.setFileName(null);
                     currentPostImage.setFileData(null);
                     post.setPostImage(currentPostImage);
@@ -246,8 +246,16 @@ public class PostService {
                     String fileName = file.getOriginalFilename();
                     byte[] fileBytes = file.getBytes();
 
-                    currentPostImage.setFileName(fileName);
-                    currentPostImage.setFileData(fileBytes);
+                    if (currentPostImage != null){
+                        currentPostImage.setFileName(fileName);
+                        currentPostImage.setFileData(fileBytes);
+                    } else {
+                        PostImage newPostImage = new PostImage();
+                        newPostImage.setFileData(fileBytes);
+                        newPostImage.setFileName(fileName);
+                        currentPostImage = newPostImage;
+                    }
+
                     post.setPostImage(currentPostImage);
 
                 }
