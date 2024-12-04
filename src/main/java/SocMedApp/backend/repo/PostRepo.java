@@ -8,10 +8,10 @@ import java.util.List;
 import java.util.Optional;
 
 public interface PostRepo extends JpaRepository<Posts, Long> {
-
+    @Query("select a from Posts a where a.userId = :userId ORDER BY id DESC")
     List<Posts> findAllPostsByUserId(Long userId);
 
-    @Query("select a from Posts a")
+    @Query("select a from Posts a ORDER BY id DESC")
     List<Posts> findAllPosts();
 
     Optional<Posts> findPostById(Long id);

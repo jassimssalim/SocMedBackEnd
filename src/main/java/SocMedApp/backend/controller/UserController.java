@@ -2,11 +2,10 @@ package SocMedApp.backend.controller;
 
 import SocMedApp.backend.dto.ResetPasswordDTO;
 import SocMedApp.backend.model.User;
-import SocMedApp.backend.model.UserImage;
-import SocMedApp.backend.repo.UserImageRepo;
 import SocMedApp.backend.repo.UserRepo;
 import SocMedApp.backend.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -91,6 +90,12 @@ public class UserController {
     @GetMapping("/profiles/{username}")
     public ResponseEntity<Map<String, Object>> getProfileByUsername(@PathVariable("username") String username) {
         return ResponseEntity.ok(userService.getProfileByUserName(username));
+    }
+
+    //get profile by userId
+    @GetMapping("/profiles/userId/{userId}")
+    public ResponseEntity<Map<String, Object>> getProfileByUsername(@PathVariable("userId") Long id) {
+        return ResponseEntity.ok(userService.getUserDetailsByUserId(id));
     }
 
     //update user by username
