@@ -9,8 +9,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
+//@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 public class PostController {
 
@@ -18,7 +21,7 @@ public class PostController {
     private PostService postService;
 
     @PostMapping(value = "/posts", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<String> addPost(@RequestParam("userId") Long userId,
+    public ResponseEntity<Object> addPost(@RequestParam("userId") Long userId,
                                           @RequestParam("content") String content,
                                           @RequestParam(value = "photo", required = false) MultipartFile file){
 
@@ -29,18 +32,28 @@ public class PostController {
         return postService.addPost(post, file);
     }
 
+    @PutMapping(value = "/posts/{postId}/edit", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Object> editPost(@PathVariable("postId") Long postId,
+                                           @RequestParam("userId") Long userId,
+                                           @RequestParam("content") String content,
+                                           @RequestParam(value = "isPhotoDeleted", required = false) boolean isPhotoDeleted,
+                                           @RequestParam(value = "photo", required = false) MultipartFile file){
+
+        return postService.editPost(postId,userId,content,file, isPhotoDeleted);
+    }
+
     @GetMapping( "/posts")
-    public ResponseEntity<List<Posts>> getAllPosts() {
+    public ResponseEntity<List<Object>> getAllPosts() {
         return ResponseEntity.ok(postService.getAllPosts());
     }
 
     @GetMapping( "/profiles/{username}/posts")
-    public ResponseEntity<List<Posts>> getAllPostByUsername(@PathVariable("username") String username) {
+    public ResponseEntity<List<Object>> getAllPostByUsername(@PathVariable("username") String username) {
         return ResponseEntity.ok(postService.getAllPostByUsername(username));
     }
 
     @GetMapping( "/posts/{id}")
-    public ResponseEntity<Posts> getPostById(@PathVariable("id") Long id) {
+    public ResponseEntity<Object> getPostById(@PathVariable("id") Long id) {
         return ResponseEntity.ok(postService.getPostById(id));
     }
 
@@ -50,12 +63,12 @@ public class PostController {
     }
 
     @GetMapping("/posts/{id}/comments")
-    public ResponseEntity<List<Comments>> getCommentsByPostId(@PathVariable("id") Long postId){
+    public ResponseEntity<List<Map<String, Object>>> getCommentsByPostId(@PathVariable("id") Long postId){
         return ResponseEntity.ok(postService.getCommentsByPostId(postId));
     }
 
     @PostMapping("/posts/{id}/comments")
-    public ResponseEntity<String> addCommentToPost(@PathVariable("id") Long postId,
+    public ResponseEntity<Object> addCommentToPost(@PathVariable("id") Long postId,
                                                    @RequestParam("content") String content,
                                                    @RequestParam("userId") Long userId){
 
@@ -63,8 +76,15 @@ public class PostController {
             newComment.setContent(content);
             newComment.setPostId(postId);
             newComment.setUserId(userId);
+            newComment.setDatePosted(LocalDateTime.now());
 
         return postService.addCommentToPost(newComment);
+    }
+
+    @PutMapping("/posts/comments/{id}/edit")
+    public ResponseEntity<String> editComment(@PathVariable("id") Long commentId,
+                                              @RequestParam("content") String content){
+        return postService.editComment(commentId, content);
     }
 
     @DeleteMapping("/posts/{id}/comments/{commentId}")
