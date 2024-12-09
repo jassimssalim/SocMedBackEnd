@@ -1,6 +1,8 @@
 package SocMedApp.backend.services;
 
 import SocMedApp.backend.dto.ResetPasswordDTO;
+import SocMedApp.backend.dto.ResetPasswordDTOv2;
+
 import SocMedApp.backend.model.User;
 import SocMedApp.backend.model.UserImage;
 import SocMedApp.backend.repo.UserRepo;
@@ -115,6 +117,8 @@ public class UserService {
         response.put("links", user.getLinks());
         response.put("address", user.getAddress());
         response.put("bio", user.getBio());
+        response.put("phone", user.getPhone());
+
 
         return response;
     }
@@ -142,6 +146,8 @@ public class UserService {
         existingUser.setLinks(updatedUser.getLinks());
         existingUser.setAddress(updatedUser.getAddress());
         existingUser.setBio(updatedUser.getBio());
+        existingUser.setPhone(updatedUser.getPhone());
+
 
         try {
             // Save the updated user
@@ -172,7 +178,7 @@ public class UserService {
 
         return response;
     }
-
+//reset password v1 start
     public String resetPassword(ResetPasswordDTO resetPasswordDTO) {
         Optional<User> userOptional = userRepo.findByEmail(resetPasswordDTO.getEmail());
 
@@ -214,6 +220,32 @@ public class UserService {
             return "User not found";
         }
     }
+//reset password v1 end
+// reset password v2 start
+
+    public String updatePassword(ResetPasswordDTOv2 ResetPasswordDTOv2) {
+        User user = userRepo.findByUsername(ResetPasswordDTOv2.getUsername());
+        if (user == null) {
+            return "User not found";
+        }
+        // Check if new password and confirm password match
+        if (!ResetPasswordDTOv2.getNewPassword().equals(ResetPasswordDTOv2.getConfirmPassword())) {
+            return "New password and confirmation do not match";
+        }
+        // Create a BCryptPasswordEncoder instance with the same strength (12)
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder(12);
+        // Check if the new password is the same as the current password
+        if (passwordEncoder.matches(ResetPasswordDTOv2.getNewPassword(), user.getPassword())) {
+            return "New password cannot be the same as the current password";
+        }
+        // Encrypt the new password before saving
+        String encryptedPassword = passwordEncoder.encode(ResetPasswordDTOv2.getNewPassword());
+        user.setPassword(encryptedPassword);
+        // Save the updated user
+        userRepo.save(user);
+
+        return "Password updated successfully";
+    }
 
     public Map<String, Object> getUserDetailsByUserId(Long id) {
         Map<String, Object> response = new HashMap<>();
@@ -250,4 +282,32 @@ public class UserService {
         userRepo.delete(user);  // This is the delete method inherited from JpaRepository
         return "User deleted successfully";
     }
+
+
+    //get all users
+
+    public List<Map<String, Object>> getAllUsersExceptCurrent(String currentUsername) {
+        List<User> users = userRepo.findAll();
+        List<Map<String, Object>> response = new ArrayList<>();
+
+        for (User user : users) {
+            if (!user.getUsername().equals(currentUsername)) {
+                Map<String, Object> userMap = new HashMap<>();
+                userMap.put("name", user.getName());
+
+                // Get the UserImage and include its details in the response
+                UserImage userImage = user.getUserImage();
+                Map<String, String> imageDetails = new HashMap<>();
+                imageDetails.put("fileName", (userImage == null) ? "" : userImage.getFileName());
+                imageDetails.put("fileData", (userImage == null) ? "" : Base64.getEncoder().encodeToString(userImage.getFileData()));
+
+                userMap.put("image", imageDetails);
+                response.add(userMap);
+            }
+        }
+
+        return response;
+    }
+
+
 }

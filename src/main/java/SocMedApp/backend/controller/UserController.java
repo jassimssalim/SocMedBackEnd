@@ -1,6 +1,8 @@
 package SocMedApp.backend.controller;
 
 import SocMedApp.backend.dto.ResetPasswordDTO;
+import SocMedApp.backend.dto.ResetPasswordDTOv2;
+
 import SocMedApp.backend.model.User;
 import SocMedApp.backend.repo.UserRepo;
 import SocMedApp.backend.services.UserService;
@@ -104,8 +106,22 @@ public class UserController {
             @PathVariable String username,
             @RequestBody User updatedUser
     ) {
-        Map<String, Object> response = userService.updateProfile(updatedUser, username);
+        Map<String, Object> response = new HashMap<>();
 
+        String email = updatedUser.getEmail(); // Extract email from the updatedUser object
+
+        // Check if the email is already in use
+        if (userRepo.existsByEmail(email)) {
+            // Verify that the email doesn't belong to the user being updated
+            User currentUser = userRepo.findByUsername(username);
+            if (currentUser != null && !currentUser.getEmail().equals(email)) {
+                response.put("emailError", "Email already taken");
+                return ResponseEntity.status(HttpStatus.CONFLICT).body(response);  // Return 409 Conflict with the email error
+            }
+        }
+
+        // Delegate the profile update logic to the service
+        response = userService.updateProfile(updatedUser, username);
 
         // Return appropriate response based on the operation's outcome
         if (response.containsKey("error")) {
@@ -115,6 +131,7 @@ public class UserController {
     }
 
 
+
     //search profile by username or name
     @GetMapping("/profiles/")
     public ResponseEntity<List<Map<String, Object>>> getProfileByUsernameOrName(@RequestParam(name = "searchParam") String searchParam) {
@@ -122,12 +139,22 @@ public class UserController {
     }
 
 
-    // Reset password
+    // Reset password V1
     @PostMapping("/reset-password")
     public String resetPassword(@RequestBody ResetPasswordDTO resetPasswordDTO) {
         return userService.resetPassword(resetPasswordDTO);
     }
 
+    //Update password v2
+    @PostMapping("/update-password")
+    public ResponseEntity<String> updatePassword(@RequestBody ResetPasswordDTOv2 resetPasswordDTOv2) {
+        String result = userService.updatePassword(resetPasswordDTOv2);
+        if (result.equals("Password updated successfully")) {
+            return ResponseEntity.ok(result); // Return 200 OK with success message
+        } else {
+            return ResponseEntity.badRequest().body(result); // Return 400 Bad Request with error message
+        }
+    }
 
     // Delete user by username
     @DeleteMapping("/delete/{username}")
@@ -142,6 +169,12 @@ public class UserController {
 
         response.put("message", result);  // Success message
         return ResponseEntity.ok(response);  // Return 200 for successful deletion
+    }
+
+
+    @GetMapping("/users/excludeCurrent")
+    public List<Map<String, Object>> getAllUsersExceptCurrent(@RequestParam String currentUsername) {
+        return userService.getAllUsersExceptCurrent(currentUsername);
     }
 
 
