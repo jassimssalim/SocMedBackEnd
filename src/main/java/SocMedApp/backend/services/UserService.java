@@ -316,5 +316,20 @@ public class UserService {
         return response;
     }
 
+    //deactivate user
+    public String deactivateUserByUsername(String username) {
+        User user = userRepo.findByUsername(username);
+
+        if (user == null) {
+            return "User not found";
+        }
+
+        user.setActive(false);
+        userRepo.save(user);  // Save the updated user object
+
+        return "User deactivated successfully";
+    }
+
+
 
 }

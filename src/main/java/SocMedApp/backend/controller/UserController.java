@@ -194,12 +194,27 @@ public class UserController {
         return ResponseEntity.ok(response);  // Return 200 for successful deletion
     }
 
-
+    //GETUSER EXCLUDE
     @GetMapping("/users/excludeCurrent")
     public List<Map<String, Object>> getAllUsersExceptCurrent(@RequestParam String currentUsername) {
         return userService.getAllUsersExceptCurrent(currentUsername);
     }
 
+    //DEACTIVE USER
+    // Deactivate user by username
+    @PutMapping("/deactivate/{username}")
+    public ResponseEntity<Map<String, Object>> deactivateUser(@PathVariable("username") String username) {
+        String result = userService.deactivateUserByUsername(username);
+        Map<String, Object> response = new HashMap<>();
+
+        if (result.equals("User not found")) {
+            response.put("error", result);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);  // Return 404 if user not found
+        }
+
+        response.put("message", result);  // Success message
+        return ResponseEntity.ok(response);  // Return 200 for successful deactivation
+    }
 
 
 }
