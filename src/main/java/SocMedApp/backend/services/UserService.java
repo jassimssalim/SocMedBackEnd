@@ -51,6 +51,7 @@ public class UserService {
             UserImage userImage = new UserImage();
             userImage.setFileName(fileName); // Save the file name
             userImage.setFileData(fileBytes); // Save the file bytes
+            user.setActive(true);
 
             // Create the User entity
             user.setPassword(bcrypt.encode(user.getPassword()));
@@ -79,6 +80,8 @@ public class UserService {
                 authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
 
         if (authentication.isAuthenticated()) {
+
+
             accessToken = jwtService.generateToken(user.getUsername());
             thisUser = userRepo.findByUsername(user.getUsername());
         }
@@ -213,7 +216,11 @@ public class UserService {
             user.setPassword(encryptedPassword);
 
             // Save the updated user
+            user.setActive(true);
+
             userRepo.save(user);
+            user.setActive(true);
+
 
             return "Password reset successfully";
         } else {

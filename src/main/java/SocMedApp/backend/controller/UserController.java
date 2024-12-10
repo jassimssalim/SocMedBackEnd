@@ -85,8 +85,31 @@ public class UserController {
     // authentication/login user
     @PostMapping("/login")
     public ResponseEntity<Map<String, Object>> authLogin(@RequestBody User user) {
-        return ResponseEntity.ok(userService.verify(user));
+        // Fetch the user from the database using the username
+        User existingUser = userRepo.findByUsername(user.getUsername());
+
+        // Check if the user exists and is active
+        if (existingUser == null) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("error", "User not found.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+
+        if (!existingUser.isActive()) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("errorInactive", "Your account is inactive. Please contact support.");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+        }
+
+        // If the user is active, proceed with the login verification
+        Map<String, Object> response = userService.verify(user);
+        if (response.containsKey("error")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        }
+
+        return ResponseEntity.ok(response);
     }
+
 
     //get profile by username
     @GetMapping("/profiles/{username}")

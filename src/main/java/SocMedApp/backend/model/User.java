@@ -26,6 +26,8 @@ public class User {
     private String links;  // Can store personal website or links
     private String address;
 
+    private boolean isActive; // Added field to track user activity status
+
     @OneToOne(cascade = CascadeType.ALL)  // One-to-one relationship with UserImage
     @JoinColumn(name = "user_image_id")  // Foreign key to UserImage
     private UserImage userImage;
@@ -131,8 +133,16 @@ public class User {
         return phone;
     }
 
-    public void setPhone(String phone) {  // Corrected the parameter to "phone"
+    public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public void setActive(boolean active) {
+        isActive = active;
     }
 
     public UserImage getUserImage() {
