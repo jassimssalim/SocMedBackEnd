@@ -88,17 +88,12 @@ public class UserController {
         // Fetch the user from the database using the username
         User existingUser = userRepo.findByUsername(user.getUsername());
 
-        // Check if the user exists and is active
-        if (existingUser == null) {
-            Map<String, Object> response = new HashMap<>();
-            response.put("error", "User not found.");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-        }
+
 
         if (!existingUser.isActive()) {
             Map<String, Object> response = new HashMap<>();
-            response.put("errorInactive", "Your account is inactive. Please contact support.");
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+            response.put("errorInactive", "Your account is inactive.");
+            return ResponseEntity.status(HttpStatus.LOCKED).body(response);
         }
 
         // If the user is active, proceed with the login verification
