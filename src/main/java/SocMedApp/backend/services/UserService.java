@@ -173,9 +173,17 @@ public class UserService {
 
         for (User user : users) {
             Map<String, Object> toAdd = new HashMap<>();
-            toAdd.put("username", user.getUsername());
+            toAdd.put("userName", user.getUsername());
             toAdd.put("name", user.getName());
             toAdd.put("email", user.getEmail());
+
+            // Get the UserImage and include its details in the response
+            UserImage userImage = user.getUserImage();
+            Map<String, String> imageDetails = new HashMap<>();
+            imageDetails.put("fileName", (userImage == null) ? "" : userImage.getFileName());
+            imageDetails.put("fileData", (userImage == null) ? "" : Base64.getEncoder().encodeToString(userImage.getFileData()));
+            toAdd.put("image", imageDetails);
+
             response.add(toAdd);
         }
 
@@ -301,6 +309,7 @@ public class UserService {
             if (!user.getUsername().equals(currentUsername)) {
                 Map<String, Object> userMap = new HashMap<>();
                 userMap.put("name", user.getName());
+                userMap.put("userName", user.getUsername());
 
                 // Get the UserImage and include its details in the response
                 UserImage userImage = user.getUserImage();
