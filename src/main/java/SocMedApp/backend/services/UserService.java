@@ -5,6 +5,9 @@ import SocMedApp.backend.dto.ResetPasswordDTOv2;
 
 import SocMedApp.backend.model.User;
 import SocMedApp.backend.model.UserImage;
+import SocMedApp.backend.repo.CommentsRepo;
+import SocMedApp.backend.repo.LikesRepo;
+import SocMedApp.backend.repo.PostRepo;
 import SocMedApp.backend.repo.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -22,6 +25,15 @@ public class UserService {
 
     @Autowired
     private UserRepo userRepo;
+
+    @Autowired
+    private PostRepo postRepo;
+
+    @Autowired
+    private LikesRepo likesRepo;
+
+    @Autowired
+    private CommentsRepo commentsRepo;
 
     @Autowired
     private AuthenticationManager authenticationManager;
@@ -294,7 +306,11 @@ public class UserService {
             return "User not found";
         }
 
-        userRepo.delete(user);  // This is the delete method inherited from JpaRepository
+        userRepo.delete(user);
+        postRepo.deleteAllPostsByUserId(user.getId());
+        likesRepo.deleteAllLikesByUserId(user.getId());
+        commentsRepo.deleteAllCommentsByUserId(user.getId());
+        // This is the delete method inherited from JpaRepository
         return "User deleted successfully";
     }
 

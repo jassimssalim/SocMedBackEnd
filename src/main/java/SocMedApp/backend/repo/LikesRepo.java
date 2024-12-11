@@ -2,10 +2,13 @@ package SocMedApp.backend.repo;
 
 import SocMedApp.backend.model.Likes;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+
 
 public interface LikesRepo extends JpaRepository<Likes, Long> {
 
@@ -21,5 +24,8 @@ public interface LikesRepo extends JpaRepository<Likes, Long> {
     @Query("select a from Likes a where a.userId = :userId AND a.postId = :postId")
     Optional<Likes> findPostLikeByUserId(Long userId, Long postId);
 
-
+    @Transactional
+    @Modifying
+    @Query("DELETE from Likes where userId = :userId")
+    void deleteAllLikesByUserId(Long userId);
 }
